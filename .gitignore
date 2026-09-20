@@ -1,4 +1,6 @@
 node_modules
+package-lock.json
 out
 /*.png
+tokenburn-cards/
 .DS_Store

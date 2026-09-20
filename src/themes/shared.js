@@ -14,23 +14,23 @@ export function header(cv, stats, { y = 4, left, leftColor, rightColor, shadow =
 }
 
 /**
- * Row of brand logos with their share of the burn, e.g. [logo] 72%.
- * Returns the x where it ended so callers can place things after it.
+ * Row of brand logos with their share of the burn. The top brand also shows its name
+ * ([logo] CLAUDE 81% [logo] 13%); a lone brand shows just its name. Returns the end x.
  */
 export function brandStrip(cv, stats, x, y, { size = 12, max = 3, gap = 6, color = '#ffffff', minShare = 0.005, outline = null, maxX = W } = {}) {
   let cx = x;
   const items = stats.brands.filter((b) => b.share >= minShare).slice(0, max);
   for (const [i, b] of items.entries()) {
+    const pct = fmtPct(b.share);
+    const options = i === 0 ? (items.length === 1 ? [b.name, pct] : [`${b.name} ${pct}`, pct]) : [pct];
+    const label = options.find((l) => cx + size + 2 + measure(l) <= maxX);
+    if (!label) break; // never run into what's on the right
     const sp = logo(b.brand, size);
     if (outline) {
       for (const [dx, dy] of [[-1, 0], [1, 0], [0, -1], [0, 1]]) cv.blitTint(sp, cx + dx, y + dy, outline);
     }
     cv.blit(sp, cx, y);
-    // A lone brand gets its name; several brands get their share of the burn.
-    const label = items.length === 1 ? b.name : fmtPct(b.share);
-    if (i > 0 && cx + size + 2 + measure(label) > maxX) break; // never run into what's on the right
-    const ty = y + Math.floor((size - 7) / 2);
-    cv.text(label, cx + size + 2, ty, { color: color === 'brand' ? b.color : color });
+    cv.text(label, cx + size + 2, y + Math.floor((size - 7) / 2), { color: color === 'brand' ? b.color : color });
     cx += size + 2 + measure(label) + gap;
   }
   return cx - gap;
@@ -57,4 +57,9 @@ export const levelFrac = (stats) => Math.min(1, Math.max(0, stats.tier.level / s
 export function activeLabel(stats) {
   const span = (stats.period.end - (stats.period.start ?? 0)) / 3600000;
   return stats.period.start && span <= 48 ? `${stats.activeHours}H ACTIVE` : `${stats.activeDays}D ACTIVE`;
+}
+
+/** First candidate that fits in `room` pixels (falls back to the last one). */
+export function fit(candidates, room) {
+  return candidates.find((c) => measure(c) <= room) ?? candidates[candidates.length - 1];
 }

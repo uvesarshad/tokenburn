@@ -47,7 +47,9 @@ export default {
     cv.rect(5, 5, W - 10, 11, '#2b1d5e');
     cv.rect(5, 15, W - 10, 1, goldDark);
     cv.text(`LV ${level} ${cls}`, 8, 8, { color: gold });
-    cv.text('\u2605', W - 9, 8, { color: gold, align: 'right' });
+    const titleRoom = W - 16 - measure(`LV ${level} ${cls}`) - 8;
+    const when = [stats.period.label, stats.period.short].find((c) => measure(c) <= titleRoom);
+    if (when) cv.text(when, W - 8, 8, { color: '#b7a8ff', align: 'right' });
 
     // Portrait.
     const px = 8;
@@ -65,9 +67,7 @@ export default {
     // Big number + period.
     const bx = 50;
     cv.text(fmtTokens(stats.tokens), bx, 18, { scale: 3, shadow: '#0d0820', rowColors: ['#ffffff', '#ffffff', '#ffe27a', '#ffe27a', '#ffcf5a', '#ffcf5a', '#ffb43a'] });
-    const room = W - 8 - bx;
-    const cap = [`TOKENS - ${stats.period.short}`, stats.period.label, stats.period.short].find((c) => measure(c) <= room);
-    cv.text(cap, bx, 41, { color: '#b7a8ff' });
+    cv.text('TOKENS BURNED', bx, 41, { color: '#b7a8ff' });
 
     // Stat bars (log-scaled so a tiny share still shows).
     const scaleFrac = (v) => Math.max(0.04, Math.min(1, Math.log10(v + 1) / Math.log10(stats.tokens + 1)));

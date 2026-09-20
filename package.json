@@ -1,6 +1,6 @@
 {
   "name": "@uvesflow/tokenburn",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Share your token burn: pixel-art cards of your AI token usage. Powered by tokscale.",
   "type": "module",
   "bin": {
@@ -15,7 +15,7 @@
   ],
   "scripts": {
     "test": "node --test",
-    "demo": "node bin/tokenburn.js --demo --theme all --no-preview --out-dir out"
+    "demo": "node bin/tokenburn.js --demo --theme all --no-preview"
   },
   "engines": {
     "node": ">=18"

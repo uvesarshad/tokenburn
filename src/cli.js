@@ -1,6 +1,7 @@
+import { readFileSync } from 'node:fs';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { homedir } from 'node:os';
-import { dirname, resolve } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
 import { parseArgs } from 'node:util';
 import { Canvas } from './canvas.js';
 import { fetchRaw, buildRecords, summarize, demoRecords, toJSON, UserError } from './data.js';
@@ -9,6 +10,7 @@ import { fmtTokens, fmtMoney } from './format.js';
 import { THEMES, THEME_IDS } from './themes/index.js';
 import { W, H } from './themes/shared.js';
 
+const DEFAULT_DIR = 'tokenburn-cards';
 const PNG_SCALE = 8; // each card pixel becomes 8x8 screen pixels -> 1152x608
 
 const HELP = `
@@ -24,8 +26,8 @@ const HELP = `
   OPTIONS
     -t, --theme <name>    ${THEME_IDS.join(' | ')} | all | random   (default: furnace)
     -n, --name <text>     handle to show on the card, e.g. @you
-    -o, --out <file>      where to save the PNG (default: ./tokenburn-<duration>-<theme>.png)
-        --out-dir <dir>   save into a folder (handy with --theme all)
+    -o, --out <file>      save the PNG to this exact file
+        --out-dir <dir>   save into this folder (default: ./${DEFAULT_DIR}/, which git ignores)
     -c, --client <list>   only count some tools, e.g. claude,codex
         --since <date>    start of the window
         --until <date>    end of the window
@@ -39,7 +41,7 @@ const HELP = `
     -v, --version         show the version
 
   EXAMPLES
-    tokenburn                       # last 30 days
+    tokenburn                       # last 30 days (the default)
     tokenburn 7d -t arcade
     tokenburn all -t galaxy -n @you
     tokenburn 1h                    # what did the last hour cost me?
@@ -49,7 +51,7 @@ const HELP = `
   Hour-level precision: usage is counted in whole-hour buckets.
 `;
 
-const VERSION = '0.1.0';
+const VERSION = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8')).version;
 
 export async function main(argv) {
   let parsed;
@@ -111,6 +113,7 @@ export async function main(argv) {
     THEMES[id].draw(cv, stats, ctx);
     const file = outPath({ out: v.out, outDir: v['out-dir'], slug: period.slug, id });
     await mkdir(dirname(file), { recursive: true });
+    if (!v.out && !v['out-dir']) await ignoreFolder(dirname(file));
     await writeFile(file, cv.toPNG(PNG_SCALE));
     outputs.push({ id, file, cv });
   }
@@ -147,7 +150,12 @@ function normalizeName(n) {
 
 function outPath({ out, outDir, slug, id }) {
   if (out) return resolve(out);
-  return resolve(outDir ?? '.', `tokenburn-${slug}-${id}.png`);
+  return resolve(outDir ?? DEFAULT_DIR, `tokenburn-${slug}-${id}.png`);
+}
+
+/** Cards are personal, so the default folder ignores itself in git ("*" ignores this file too). */
+async function ignoreFolder(dir) {
+  await writeFile(join(dir, '.gitignore'), '*\n', { flag: 'wx' }).catch(() => {});
 }
 
 function prettyPath(p) {

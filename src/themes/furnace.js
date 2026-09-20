@@ -70,18 +70,18 @@ export default {
     cv.rect(0, 61, W, 1, '#3a0f1c');
 
     // Text.
-    header(cv, stats, { left: 'TOKENBURN', leftColor: '#ff8a1f', rightColor: '#d9a98c' });
+    header(cv, stats, { left: ctx.name || 'TOKENBURN', leftColor: '#ff8a1f', rightColor: '#d9a98c' });
     cv.text(fmtTokens(stats.tokens), 6, 14, {
       scale: 4,
       shadow: '#5a1414',
       rowColors: ['#fff4b0', '#ffe26a', '#ffcf3a', '#ffb02a', '#ff8f22', '#f77a1c', '#ee6618'],
     });
     cv.text('TOKENS BURNED', 6, 45, { color: '#e0a582' });
-    const spend = ctx.showCost ? `${fmtMoney(stats.cost)} SPENT` : activeLabel(stats);
+    const spend = ctx.showCost ? `COST ${fmtMoney(stats.cost)}` : activeLabel(stats);
     cv.text(spend, 6, 53, { color: '#ffc23a' });
 
-    const tag = ctx.name ? ctx.name : `★ ${stats.tier.name}`;
-    cv.text(tag, W - 6, 66, { color: '#ff8a1f', align: 'right' });
-    brandStrip(cv, stats, 6, 63, { size: 11, max: 3, gap: 5, color: '#f3d9c4', maxX: W - 12 - measure(tag) });
+    const end = brandStrip(cv, stats, 6, 63, { size: 11, max: 3, gap: 5, color: '#f3d9c4' });
+    const tag = `\u2605 ${stats.tier.name}`;
+    if (end + 10 + measure(tag) <= W - 6) cv.text(tag, W - 6, 66, { color: '#ff8a1f', align: 'right' });
   },
 };

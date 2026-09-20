@@ -18,10 +18,10 @@ It's a CLI that makes shareable pixel-art cards of my AI token usage.
 3. Ask me which time window (1h, 24h, 7d, 30d, 90d, all), which theme
    (furnace, arcade, galaxy, quest), and whether to show my handle and cost.
    Then run: tokenburn <window> -t <theme> --no-preview
-   and tell me where the PNG card was saved.
+   and tell me where the PNG card was saved (it goes in ./tokenburn-cards/).
 4. Finish by giving me the two commands to use anytime:
-   npm i -g @uvesflow/tokenburn
-   tokenburn
+   npm i -g @uvesflow/tokenburn   (install, once)
+   tokenburn                      (makes a 30-day card by default)
 
 If you can't run commands yourself, just walk me through these steps.
 ```
@@ -42,6 +42,8 @@ Requires Node 18+ and [tokscale](https://github.com/junhoyeo/tokscale) (`npm i -
 npm i -g @uvesflow/tokenburn
 ```
 
+Use `-g` (global). Without it the `tokenburn` command isn't added to your PATH. To try it without installing anything, run `npx @uvesflow/tokenburn`.
+
 Or from source:
 
 ```bash
@@ -53,7 +55,7 @@ npm link
 Then:
 
 ```bash
-tokenburn                 # last 30 days, saved as a PNG in the current folder
+tokenburn                 # last 30 days (the default), saved to ./tokenburn-cards/
 ```
 
 ## Usage
@@ -74,13 +76,15 @@ tokenburn --demo                       # try it with made-up data
 
 **Themes:** `furnace` (default), `arcade`, `galaxy`, `quest`, plus `all` and `random`. `tokenburn --list-themes` describes them.
 
-The card is saved as a 1152x608 PNG (the pixels are drawn at 144x76 and scaled up 8x with hard edges, so it stays crisp). On a terminal at least 144 columns wide the card is also drawn inline: screenshot that if you prefer. Use `--no-preview` to skip it or `--preview` to force it.
+Cards are saved in a `tokenburn-cards/` folder in the current directory. That folder ignores itself in git, so your cards never get committed by accident. Use `--out-dir <folder>` or `-o <file>` to save elsewhere.
+
+Each card is a 1152x608 PNG (the pixels are drawn at 144x76 and scaled up 8x with hard edges, so it stays crisp). On a terminal at least 144 columns wide the card is also drawn inline: screenshot that if you prefer. Use `--no-preview` to skip it or `--preview` to force it.
 
 ## What's on a card
 
 - Total tokens (input + output + cache reads/writes, the same definition tokscale uses) and, optionally, estimated cost
 - The AI brands you burned tokens on, with pixel logos and their share (Claude, OpenAI, Gemini, Grok, Cursor, Copilot and generic badges for the rest)
-- A burn rank that grows with the total (SPARK, EMBER, CAMPFIRE, BONFIRE, INFERNO, SUPERNOVA, STAR FORGE, DYSON SWARM), and per theme extras such as a bonfire that scales with the rank, a Kardashev-scale number, or RPG level and class
+- A burn rank that grows with the total (SPARK, EMBER, CAMPFIRE, BONFIRE, INFERNO, SUPERNOVA, STAR FORGE, DYSON SWARM), and per theme extras such as a bonfire that scales with the rank, or RPG level and class
 - Your handle if you pass `--name`
 
 Cards contain **only aggregate numbers**. No project names, paths, prompts or session ids ever reach the image.

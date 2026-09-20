@@ -219,7 +219,7 @@ export class Canvas {
         cx += advance(ch) * scale;
       }
     };
-    if (shadow) draw(scale, scale, shadow, null);
+    if (shadow) draw(1, 1, shadow, null); // 1 card-pixel offset keeps the counters of B/8/0 open
     draw(0, 0, color, rowColors);
     return w;
   }

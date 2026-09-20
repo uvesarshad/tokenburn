@@ -1,7 +1,7 @@
 import { rng } from '../canvas.js';
 import { fmtTokens, fmtMoney } from '../format.js';
 import { measure } from '../font.js';
-import { W, H, brandStrip, activeLabel } from './shared.js';
+import { W, H, brandStrip, activeLabel, fit } from './shared.js';
 
 const SKY = ['#06021a', '#100636', '#241058', '#4a1670', '#8a1f86'];
 const HORIZON = 60;
@@ -65,13 +65,14 @@ export default {
     if (ctx.name && 6 + 24 + measure(ctx.name) + measure(label) + 8 < W) cv.text(ctx.name, 6 + 24, 4, { color: '#ffffff' });
 
     // Caption under the score.
-    cv.text(`TOKENS - ${stats.tier.name}`, sx, 46, { color: '#e8fbff', align: 'center', shadow: '#160a3a' });
+    cv.text('TOKENS BURNED', sx, 46, { color: '#e8fbff', align: 'center', shadow: '#160a3a' });
 
     // Bottom panel: brands + spend.
     cv.rect(0, 62, W, H - 62, '#06021ab8');
     cv.rect(0, 62, W, 1, '#ff4fc0');
-    const right = ctx.showCost ? fmtMoney(stats.cost) : activeLabel(stats);
-    cv.text(right, W - 6, 66, { color: '#ffd23f', align: 'right' });
-    brandStrip(cv, stats, 6, 64, { size: 11, max: 3, gap: 6, color: '#ffffff', maxX: W - 12 - measure(right) });
+    const end = brandStrip(cv, stats, 6, 64, { size: 11, max: 3, gap: 6, color: '#ffffff', maxX: W - 40 });
+    const right = ctx.showCost ? [`COST ${fmtMoney(stats.cost)}`, fmtMoney(stats.cost)] : [activeLabel(stats)];
+    const costText = fit(right, W - 12 - end - 6);
+    cv.text(costText, W - 6, 66, { color: '#ffd23f', align: 'right' });
   },
 };

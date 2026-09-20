@@ -1,7 +1,8 @@
 import { rng } from '../canvas.js';
 import { logo } from '../logos.js';
-import { fmtTokens, fmtMoney, fmtPct } from '../format.js';
-import { W, H, header, levelFrac, activeLabel } from './shared.js';
+import { fmtTokens, fmtMoney } from '../format.js';
+import { measure } from '../font.js';
+import { W, H, header, brandStrip, levelFrac, activeLabel, fit } from './shared.js';
 
 const SPACE = ['#03051a', '#070c2e', '#101a4a', '#1a1f66'];
 const SUN = ['#fffbe0', '#ffe884', '#ffb43a', '#ff7a1a', '#d94a12'];
@@ -9,12 +10,12 @@ const SUN = ['#fffbe0', '#ffe884', '#ffb43a', '#ff7a1a', '#d94a12'];
 export default {
   id: 'galaxy',
   name: 'Galaxy',
-  description: 'Your burn as a star system: every AI you use is a planet. Kardashev-approved.',
+  description: 'Your burn as a star system: every AI you use is a planet.',
   draw(cv, stats, ctx) {
     const rand = rng((stats.tokens % 1e9) | 0 || 5);
     const lv = levelFrac(stats);
     const cx = 106;
-    const cy = 36;
+    const cy = 33;
     const r = 6 + Math.round(lv * 8);
 
     // Deep space with a soft nebula glow behind the star.
@@ -38,8 +39,7 @@ export default {
 
     // Orbits (dotted ellipses) + planets, one per top brand.
     const planets = stats.brands.filter((b) => b.share >= 0.005).slice(0, 3);
-    const angles = [-35, 35, 112];
-    const labelBelow = [false, true, true];
+    const angles = [-38, 28, 78];
     const rxs = [r + 13, r + 23, r + 32];
     const orbitCol = '#3a4694';
     rxs.slice(0, Math.max(planets.length, 1)).forEach((rx) => {
@@ -71,20 +71,25 @@ export default {
       const sp = logo(p.brand, 12);
       for (const [dx, dy] of [[-1, 0], [1, 0], [0, -1], [0, 1]]) cv.blitTint(sp, px + dx, py + dy, '#03051a');
       cv.blit(sp, px, py);
-      cv.text(fmtPct(p.share), px + 6, labelBelow[i] ? py + 14 : py - 9, { color: '#c9d2ff', align: 'center', shadow: '#03051a' });
     });
 
     // Left column.
     header(cv, stats, { left: ctx.name || 'TOKENBURN', leftColor: '#ffb43a', rightColor: '#9aa6e8' });
-    cv.text(fmtTokens(stats.tokens), 6, 15, {
+    cv.text(fmtTokens(stats.tokens), 6, 14, {
       scale: 3,
       shadow: '#0d1440',
       rowColors: ['#ffffff', '#fff2b8', '#ffe27a', '#ffcf5a', '#ffb43a', '#ff9a2a', '#ff8a1f'],
     });
-    cv.text('TOKENS BURNED', 6, 39, { color: '#9aa6e8' });
-    const K = Math.log10(Math.max(10, stats.tokens)) / 10;
-    cv.text('KARDASHEV', 6, 50, { color: '#6c7ac8' });
-    cv.text(`TYPE ${K.toFixed(2)}`, 6, 58, { color: '#ffe27a' });
-    cv.text(ctx.showCost ? fmtMoney(stats.cost) : activeLabel(stats), 6, 67, { color: '#7fe0c0' });
+    cv.text('TOKENS BURNED', 6, 37, { color: '#9aa6e8' });
+    cv.text('BURN RANK', 6, 46, { color: '#6c7ac8' });
+    cv.text(stats.tier.name, 6, 54, { color: '#ffe27a' });
+
+    // Legend strip: who the planets are. Brand names take priority over the "COST" word.
+    cv.rect(0, 63, W, H - 63, '#03051acc');
+    cv.rect(0, 63, W, 1, '#1a1f66');
+    const bare = ctx.showCost ? fmtMoney(stats.cost) : activeLabel(stats);
+    const end = brandStrip(cv, stats, 6, 65, { size: 11, max: 3, gap: 6, color: '#c9d2ff', maxX: W - 12 - measure(bare) });
+    const cost = ctx.showCost ? fit([`COST ${bare}`, bare], W - 12 - end - 6) : bare;
+    cv.text(cost, W - 6, 67, { color: '#7fe0c0', align: 'right' });
   },
 };
