@@ -1,10 +1,30 @@
 # Token Burn
 
-> **AI agent?** Paste this repo's URL into your agent (Claude Code, Codex, Cursor, ...) and it will set everything up and make your card. Its instructions are in [AGENTS.md](AGENTS.md).
-
 **Share your token burn.** Pixel-art cards of your AI token usage, for any time window you like: all time, 90 days, 30 days, a week, a day, an hour, or exact dates.
 
 Usage numbers come from [tokscale](https://github.com/junhoyeo/tokscale), which reads your local logs from Claude Code, Codex, Gemini, Cursor, OpenCode and 40+ other tools. tokenburn is only the card layer on top.
+
+## Quick start with any AI
+
+Copy this prompt into Claude, ChatGPT, Codex, Cursor, or any AI assistant:
+
+```text
+Set up Token Burn for me: https://github.com/uvesarshad/tokenburn
+It's a CLI that makes shareable pixel-art cards of my AI token usage.
+
+1. Check I have Node 18+ and tokscale (install tokscale with: npm i -g tokscale).
+2. Install it with: npm i -g tokenburn
+   (if that fails, git clone the repo and run npm link inside it).
+3. Ask me which time window (1h, 24h, 7d, 30d, 90d, all), which theme
+   (furnace, arcade, galaxy, quest), and whether to show my handle and cost.
+   Then run: tokenburn <window> -t <theme> --no-preview
+   and tell me where the PNG card was saved.
+4. Finish by giving me the two commands to use anytime:
+   npm i -g tokenburn
+   tokenburn
+
+If you can't run commands yourself, just walk me through these steps.
+```
 
 | Furnace | Arcade |
 |:---:|:---:|
@@ -16,15 +36,19 @@ _Example cards use built-in demo data (`--demo`)._
 
 ## Install
 
-Requires Node 18+ and [tokscale](https://github.com/junhoyeo/tokscale) (`npm i -g tokscale`). If tokscale isn't installed, tokenburn falls back to `npx tokscale@latest`.
+Requires Node 18+ and [tokscale](https://github.com/junhoyeo/tokscale) (`npm i -g tokscale`). If tokscale isn't installed, Token Burn falls back to `npx tokscale@latest`.
+
+```bash
+npm i -g tokenburn
+```
+
+Or from source:
 
 ```bash
 git clone https://github.com/uvesarshad/tokenburn.git
 cd tokenburn
-npm link                  # puts the `tokenburn` command on your PATH
+npm link
 ```
-
-(An npm package, `npm i -g tokenburn`, is planned.)
 
 Then:
 
