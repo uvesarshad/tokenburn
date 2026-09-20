@@ -13,14 +13,14 @@ Set up Token Burn for me: https://github.com/uvesarshad/tokenburn
 It's a CLI that makes shareable pixel-art cards of my AI token usage.
 
 1. Check I have Node 18+ and tokscale (install tokscale with: npm i -g tokscale).
-2. Install it with: npm i -g tokenburn
+2. Install it with: npm i -g @uvesflow/tokenburn
    (if that fails, git clone the repo and run npm link inside it).
 3. Ask me which time window (1h, 24h, 7d, 30d, 90d, all), which theme
    (furnace, arcade, galaxy, quest), and whether to show my handle and cost.
    Then run: tokenburn <window> -t <theme> --no-preview
    and tell me where the PNG card was saved.
 4. Finish by giving me the two commands to use anytime:
-   npm i -g tokenburn
+   npm i -g @uvesflow/tokenburn
    tokenburn
 
 If you can't run commands yourself, just walk me through these steps.
@@ -39,7 +39,7 @@ _Example cards use built-in demo data (`--demo`)._
 Requires Node 18+ and [tokscale](https://github.com/junhoyeo/tokscale) (`npm i -g tokscale`). If tokscale isn't installed, Token Burn falls back to `npx tokscale@latest`.
 
 ```bash
-npm i -g tokenburn
+npm i -g @uvesflow/tokenburn
 ```
 
 Or from source:
