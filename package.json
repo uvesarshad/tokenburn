@@ -1,0 +1,43 @@
+{
+  "name": "tokenburn",
+  "version": "0.1.0",
+  "description": "Share your token burn: pixel-art cards of your AI token usage. Powered by tokscale.",
+  "type": "module",
+  "bin": {
+    "tokenburn": "bin/tokenburn.js",
+    "token-burn": "bin/tokenburn.js"
+  },
+  "files": [
+    "bin",
+    "src",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "test": "node --test",
+    "demo": "node bin/tokenburn.js --demo --theme all --no-preview --out-dir out"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "tokens",
+    "ai",
+    "claude",
+    "codex",
+    "tokscale",
+    "pixel-art",
+    "share-card",
+    "cli"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/uvesarshad/tokenburn.git"
+  },
+  "homepage": "https://github.com/uvesarshad/tokenburn#readme",
+  "bugs": {
+    "url": "https://github.com/uvesarshad/tokenburn/issues"
+  },
+  "author": "Uves Arshad"
+}
