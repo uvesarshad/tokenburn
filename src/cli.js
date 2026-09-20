@@ -8,6 +8,7 @@ import { fetchRaw, buildRecords, summarize, demoRecords, toJSON, UserError } fro
 import { resolvePeriod } from './period.js';
 import { fmtTokens, fmtMoney } from './format.js';
 import { THEMES, THEME_IDS } from './themes/index.js';
+import { askQuestions } from './wizard.js';
 import { W, H } from './themes/shared.js';
 
 const DEFAULT_DIR = 'tokenburn-cards';
@@ -19,7 +20,10 @@ const HELP = `
   USAGE
     tokenburn [duration] [options]
 
-  DURATION  (default: 30d)
+  Run plain tokenburn in a terminal and it asks what you want (window, design,
+  handle, cost). Give a duration or use -y to skip the questions.
+
+  DURATION  (default with -y or in scripts: 30d)
     all | today | 1h | 6h | 24h | 7d | 30d | 90d | 2w | 3mo | 1y
     or pick exact bounds with --since / --until (YYYY-MM-DD or YYYY-MM-DDTHH:MM)
 
@@ -32,6 +36,7 @@ const HELP = `
         --since <date>    start of the window
         --until <date>    end of the window
         --no-cost         leave the dollar amount off the card
+    -y, --yes             skip the questions and use the defaults (30 days, furnace)
         --no-preview      don't draw the card in the terminal
         --preview         always draw the card in the terminal
         --json            print the numbers as JSON instead of making a card
@@ -41,7 +46,8 @@ const HELP = `
     -v, --version         show the version
 
   EXAMPLES
-    tokenburn                       # last 30 days (the default)
+    tokenburn                       # asks what you want
+    tokenburn -y                    # no questions: last 30 days, furnace
     tokenburn 7d -t arcade
     tokenburn all -t galaxy -n @you
     tokenburn 1h                    # what did the last hour cost me?
@@ -69,6 +75,7 @@ export async function main(argv) {
         since: { type: 'string' },
         until: { type: 'string' },
         'no-cost': { type: 'boolean' },
+        yes: { type: 'boolean', short: 'y' },
         'no-preview': { type: 'boolean' },
         preview: { type: 'boolean' },
         json: { type: 'boolean' },
@@ -91,11 +98,26 @@ export async function main(argv) {
   }
   if (positionals.length > 1) throw new UserError(`Unexpected extra argument "${positionals[1]}".`);
 
-  const period = resolvePeriod({ last: v.last ?? positionals[0], since: v.since, until: v.until });
-  const themeIds = pickThemes(v.theme);
+  // Plain `tokenburn` in a terminal asks what you want. Anything typed on the command line
+  // (a duration, --theme, ...) skips the matching question; scripts and pipes never get asked.
+  const noDuration = !positionals[0] && !v.last && !v.since && !v.until;
+  const canAsk = !v.yes && !v.json && process.stdin.isTTY && process.stdout.isTTY;
+  const answers = canAsk && noDuration
+    ? await askQuestions({
+        have: {
+          theme: v.theme,
+          name: v.name,
+          showCost: v['no-cost'] ? false : undefined,
+        },
+      })
+    : null;
+
+  const period = resolvePeriod(answers ?? { last: v.last ?? positionals[0], since: v.since, until: v.until });
+  const themeIds = pickThemes(answers?.theme ?? v.theme);
   if (v.out && themeIds.length > 1) throw new UserError('--out takes one file. Use --out-dir when making several cards.');
-  const name = normalizeName(v.name);
+  const name = normalizeName(answers?.name ?? v.name);
   const clients = v.client ? v.client.split(',').map((s) => s.trim()).filter(Boolean) : undefined;
+  const showCost = answers ? answers.showCost : !v['no-cost'];
 
   // Data
   const quiet = v.json || !process.stderr.isTTY;
@@ -106,7 +128,7 @@ export async function main(argv) {
   if (v.json) return void console.log(JSON.stringify(toJSON(stats), null, 2));
 
   // Cards
-  const ctx = { name, showCost: !v['no-cost'] };
+  const ctx = { name, showCost };
   const outputs = [];
   for (const id of themeIds) {
     const cv = new Canvas(W, H);

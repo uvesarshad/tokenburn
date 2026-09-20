@@ -21,7 +21,7 @@ It's a CLI that makes shareable pixel-art cards of my AI token usage.
    and tell me where the PNG card was saved (it goes in ./tokenburn-cards/).
 4. Finish by giving me the two commands to use anytime:
    npm i -g @uvesflow/tokenburn   (install, once)
-   tokenburn                      (makes a 30-day card by default)
+   tokenburn                      (asks what window and design you want)
 
 If you can't run commands yourself, just walk me through these steps.
 ```
@@ -55,12 +55,13 @@ npm link
 Then:
 
 ```bash
-tokenburn                 # last 30 days (the default), saved to ./tokenburn-cards/
+tokenburn                 # asks what you want, then saves the card to ./tokenburn-cards/
 ```
 
 ## Usage
 
 ```bash
+tokenburn -y                           # no questions: last 30 days, furnace theme
 tokenburn 7d -t arcade                 # last 7 days, arcade theme
 tokenburn all -t galaxy -n @you        # all time, with your handle on the card
 tokenburn 1h                           # what did the last hour cost?
@@ -71,6 +72,8 @@ tokenburn 30d -c claude,codex          # only count some tools
 tokenburn 30d --json                   # just print the numbers
 tokenburn --demo                       # try it with made-up data
 ```
+
+Plain `tokenburn` in a terminal asks four quick questions: how far back, which design, an optional handle, and whether to show the cost. Anything you type on the command line (a duration, `-t`, `-n`, `--no-cost`) skips that question, and scripts or pipes are never asked. `-y` skips all questions and uses the defaults (30 days, furnace).
 
 **Durations:** `all`, `today`, `1h`, `6h`, `24h`, `7d`, `30d`, `90d`, `2w`, `3mo`, `1y`, or any `<number><h|d|w|mo|y>`. Exact bounds: `--since` / `--until` (`YYYY-MM-DD` or `YYYY-MM-DDTHH:MM`, local time; a bare `--until` date includes that whole day).
 
